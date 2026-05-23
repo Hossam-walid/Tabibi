@@ -1,0 +1,36 @@
+owner@tabibi.com
+admin@tabibi.com
+receptionist@tabibi.com
+patient@tabibi.com
+doctor001@tabibi.com - doctor010@tabibi.com
+Test@123456
+
+
+______________________________________________
+After restarting, open 3 PowerShell windows.
+
+1. Backend
+
+cd C:\Users\hossa\Desktop\Tabibi\Tabibi-Server
+bun run dev
+Runs on:
+
+http://localhost:3000
+2. Client
+
+cd C:\Users\hossa\Desktop\Tabibi\Tabibi-Client
+npm run dev
+Usually runs on:
+
+http://localhost:5173
+3. Admin
+
+cd C:\Users\hossa\Desktop\Tabibi\Tabibi-Admin
+npm run dev
+Usually runs on:
+
+http://localhost:5174
+If PostgreSQL is not running after restart:
+
+Start-Service postgresql-x64-17
+You do not need to run install, Prisma, or seed every restart. Just run the three dev commands.
