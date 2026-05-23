@@ -1,0 +1,181 @@
+import { createContext, useCallback, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { doctorsApi, patientsApi, appointmentsApi } from "../api/client";
+import { useTranslation } from "react-i18next";
+import usePatientSession from "../hooks/usePatientSession";
+
+export const AppContext = createContext()
+
+const AppContextProvider = (props) => {
+
+    const { t } = useTranslation()
+    const currencySymbol = 'EGP'
+
+    const [doctors, setDoctors] = useState([])
+    const [userData, setUserData] = useState(false)
+    const [patientData, setPatientData] = useState(null)
+    const [patientAppointments, setPatientAppointments] = useState([])
+    const { session, isPatient, isPending } = usePatientSession()
+
+    const getDoctosData = useCallback(async (filters = {}) => {
+        try {
+            const result = await doctorsApi.list({ ...filters, allowPublic: true })
+            // Tabibi-Server returns { data: [...] } for list
+            const doctorsList = result?.data ?? result
+            if (Array.isArray(doctorsList)) {
+                const normalized = doctorsList.map(doc => {
+                    const name = doc.name || `${doc.firstName || ''} ${doc.lastName || ''}`.trim() || 'Doctor';
+                    const speciality = doc.speciality || doc.specialization || 'General';
+                    const degree = doc.degree || doc.qualification || 'M.B.B.S';
+                    const about = doc.about || doc.bio || t('common.professionalCaregiver');
+                    const available = typeof doc.available === 'boolean' ? doc.available : (typeof doc.isAvailable === 'boolean' ? doc.isAvailable : true);
+                    return {
+                        ...doc,
+                        name,
+                        speciality,
+                        degree,
+                        about,
+                        available
+                    }
+                })
+                setDoctors(normalized)
+            } else {
+                setDoctors([])
+            }
+        } catch (error) {
+            console.log(error)
+            setDoctors([])
+        }
+    }, [])
+
+    const loadPatientData = useCallback(async () => {
+        if (!isPatient || !session?.user?.id) return
+
+        try {
+            const organizationId = session?.activeOrganizationId || session?.user?.organizationId
+            const result = await patientsApi.getByUserId(session.user.id, organizationId)
+            const data = result?.data ?? result
+            if (Array.isArray(data) && data[0]) {
+                setPatientData(data[0])
+            } else if (data?.id) {
+                setPatientData(data)
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(error.message)
+        }
+    }, [isPatient, session?.user?.id, session?.activeOrganizationId, session?.user?.organizationId])
+
+    const loadUserProfileData = useCallback(async () => {
+        if (!isPatient || !session?.user) return
+
+        setUserData({
+            id: session.user.id,
+            name: session.user.name,
+            email: session.user.email,
+            phone: session.user.phone,
+        })
+        if (patientData?.id) {
+            setUserData(prev => ({
+                ...prev,
+                address: patientData.address,
+                dob: patientData.dateOfBirth,
+                gender: patientData.gender
+            }))
+        }
+    }, [isPatient, session?.user, patientData?.id])
+
+    const loadPatientAppointments = useCallback(async () => {
+        if (!patientData?.id) return
+
+        try {
+            const result = await appointmentsApi.list({})
+            const appointments = result?.data ?? result
+            if (Array.isArray(appointments)) {
+                setPatientAppointments(appointments.filter(apt => apt.patient?.id === patientData.id || apt.patientId === patientData.id))
+            } else {
+                setPatientAppointments([])
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(error.message)
+        }
+    }, [patientData?.id])
+
+    const createPatientProfile = useCallback(async (data) => {
+        try {
+            const organizationId = session?.activeOrganizationId || session?.user?.organizationId
+            if (!organizationId) {
+                toast.error(t('auth.noOrg'))
+                return null
+            }
+
+            const result = await patientsApi.create({
+                ...data,
+                userId: session.user.id,
+                organizationId
+            })
+            const patient = result?.data ?? result
+            setPatientData(patient)
+            return patient
+        } catch (error) {
+            console.error(error)
+            toast.error(error.message)
+            return null
+        }
+    }, [session?.user?.id, session?.activeOrganizationId, session?.user?.organizationId])
+
+    const updateUserProfileData = useCallback(async (data) => {
+        if (!patientData?.id) return false
+
+        try {
+            const result = await patientsApi.update(patientData.id, data)
+            const patient = result?.data ?? result
+            setPatientData(patient)
+            toast.success(t('myProfile.profileUpdated'))
+            return true
+        } catch (error) {
+            console.error(error)
+            toast.error(error.message)
+            return false
+        }
+    }, [patientData?.id])
+
+    useEffect(() => {
+        getDoctosData()
+    }, [getDoctosData])
+
+    useEffect(() => {
+        if (!isPending && isPatient && session?.user?.id) {
+            loadPatientData().then(() => {
+                loadUserProfileData()
+            })
+        }
+    }, [isPending, isPatient, session?.user?.id, loadPatientData, loadUserProfileData])
+
+    useEffect(() => {
+        if (patientData?.id) {
+            loadPatientAppointments()
+        }
+    }, [patientData?.id, loadPatientAppointments])
+
+    const value = {
+        doctors, getDoctosData,
+        currencySymbol,
+        userData, setUserData, loadUserProfileData,
+        patientData, setPatientData, loadPatientData,
+        patientAppointments, setPatientAppointments, loadPatientAppointments,
+        createPatientProfile,
+        updateUserProfileData,
+        session
+    }
+
+    return (
+        <AppContext.Provider value={value}>
+            {props.children}
+        </AppContext.Provider>
+    )
+
+}
+
+export default AppContextProvider

@@ -1,0 +1,62 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+@theme {
+  --color-primary: #5F6FFF;
+  --font-outfit: "Outfit", sans-serif;
+  
+  /* Precision Palette (OKLCH) */
+  --color-ui-bg: oklch(0.99 0.005 260);
+  --color-ui-surface: oklch(1 0 0);
+  --color-ui-border: oklch(0.94 0.01 260);
+  --color-ui-text-main: oklch(0.25 0.01 260);
+  --color-ui-text-muted: oklch(0.55 0.01 260);
+  --color-ui-accent: oklch(0.55 0.18 260); /* Refined Primary #5F6FFF */
+  --color-ui-accent-subtle: oklch(0.96 0.02 260);
+
+  /* Custom Easing Curves */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+@layer base {
+  * {
+    font-family: var(--font-outfit);
+  }
+  
+  /* Focus States */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* Custom Scrollbars */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  display: block;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: oklch(0.9 0.01 260);
+  border-radius: 20px;
+}
+
+.scrollbar-thin:hover::-webkit-scrollbar-thumb {
+  background-color: oklch(0.8 0.01 260);
+}
+
+* {
+  font-family: Outfit;
+}
+
+/* ::-webkit-scrollbar{
+    display: none;
+} */

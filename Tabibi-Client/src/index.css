@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700&family=Cairo:wght@400;500;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary: oklch(59% 0.145 270);
+  --color-primary-light: oklch(70% 0.12 270);
+  --color-primary-dark: oklch(45% 0.13 270);
+  --color-surface: oklch(99% 0.003 270);
+  --color-surface-raised: oklch(98% 0.005 270);
+  --color-border: oklch(92% 0.006 270);
+  --color-border-light: oklch(95% 0.004 270);
+  --color-text: oklch(18% 0.008 270);
+  --color-text-secondary: oklch(45% 0.01 270);
+  --color-text-muted: oklch(62% 0.008 270);
+  --color-green: oklch(65% 0.14 150);
+  --color-green-light: oklch(90% 0.06 150);
+  --color-amber: oklch(75% 0.1 80);
+  --color-rose: oklch(60% 0.15 20);
+  --color-rose-light: oklch(90% 0.05 20);
+
+  --font-display: 'Sora', sans-serif;
+  --font-body: 'Figtree', sans-serif;
+  --font-display-arabic: 'Cairo', 'Noto Kufi Arabic', sans-serif;
+  --font-body-arabic: 'Cairo', 'Noto Kufi Arabic', sans-serif;
+}
+
+* {
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* RTL Arabic font overrides */
+.rtl-layout,
+[dir="rtl"] {
+  --font-display: var(--font-display-arabic);
+  --font-body: var(--font-body-arabic);
+}
+
+.rtl-layout h1, .rtl-layout h2, .rtl-layout h3, .rtl-layout h4, .rtl-layout h5, .rtl-layout h6,
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6 {
+  font-family: var(--font-display-arabic);
+}
+
+.rtl-layout .font-display {
+  font-family: var(--font-display-arabic) !important;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.92); opacity: 0.4; }
+  50% { transform: scale(1.08); opacity: 0.15; }
+  100% { transform: scale(0.92); opacity: 0.4; }
+}
+
+@keyframes soft-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float {
+  animation: float-gentle 6s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.animate-soft-shake {
+  animation: soft-shake 0.3s ease-in-out;
+}
+
+.grid-cols-auto {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+/* RTL-specific utility classes for margins, paddings, and transforms */
+[dir="rtl"] .rtl\:scale-x-flip {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .rtl\:text-left {
+  text-align: right !important;
+}
+
+[dir="rtl"] .rtl\:text-right {
+  text-align: left !important;
+}
+
+[dir="rtl"] .rtl\:flex-row-reverse {
+  flex-direction: row-reverse !important;
+}
+
+/* Smooth language transition */
+.rtl-layout,
+.ltr-layout {
+  transition: all 0.15s ease-out;
+}
